@@ -50,11 +50,38 @@ services:
     networks:
       - backend
 
+  mailserver:
+    image: ghcr.io/docker-mailserver/docker-mailserver:latest
+    hostname: mail
+    domainname: ${MAIL_DOMAIN_NAME}
+    volumes:
+      - maildata:/var/mail
+      - mailstate:/var/mail-state
+      - maillogs:/var/log/mail
+      - ./config/:/tmp/docker-mailserver/
+    ports:
+      - "25:25"
+      - "143:143"
+      - "587:587"
+      - "993:993"
+    environment:
+      - ENABLE_SPAMASSASSIN=${MAIL_ENABLE_SPAMASSASSIN}
+      - ENABLE_CLAMAV=${MAIL_ENABLE_CLAMAV}
+      - ENABLE_FAIL2BAN=${MAIL_ENABLE_FAIL2BAN}
+    networks:
+      - frontend
+    cap_add:
+      - NET_ADMIN
+      - SYS_PTRACE
+
 volumes:
   npm_data:
   npm_letsencrypt:
   db_data:
   wordpress_data:
+  maildata:
+  mailstate:
+  maillogs:
 
 networks:
   frontend:
